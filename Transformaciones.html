@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Titulo</title>
+        <style>
+            html, body { margin: 0; padding: 0; overflow: hidden; }
+            #text {
+                position: absolute;
+                padding: 10px;
+                width: 100%;
+                text-align: center;
+                color: #FFFFFF;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="text">COMPUTACION GRAFICA<br/>
+            CUBO Y TRANSFORMACIONES<br/>
+            MARIA NATALIA CARO MONROY<br/>
+        </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r94/three.min.js"></script>
+    <script>
+
+
+    
+    function cubo(posini,lado, material){ //Creacion del CUbo
+        //Cubo 
+        GeoCuadrado=new THREE.Geometry(); //Guarda los vertices de un cubo
+        var vertices = [[posini[0]-lado/2,posini[1]-lado/2,posini[2]-lado/2], //F
+                        [posini[0]-lado/2,posini[1]+lado/2,posini[2]-lado/2], //E
+                        [posini[0]+lado/2,posini[1]+lado/2,posini[2]-lado/2], //H
+                        [posini[0]+lado/2,posini[1]-lado/2,posini[2]-lado/2], //G
+                        [posini[0]-lado/2,posini[1]-lado/2,posini[2]-lado/2], //F Cierra cara trasera
+                        [posini[0]-lado/2,posini[1]-lado/2,posini[2]+lado/2], //C
+                        [posini[0]-lado/2,posini[1]+lado/2,posini[2]+lado/2], //D
+                        [posini[0]+lado/2,posini[1]+lado/2,posini[2]+lado/2], //A
+                        [posini[0]+lado/2,posini[1]-lado/2,posini[2]+lado/2], //B
+                        [posini[0]-lado/2,posini[1]-lado/2,posini[2]+lado/2], //C cierra cara delantera
+                        [posini[0]-lado/2,posini[1]-lado/2,posini[2]-lado/2], //F
+                        [posini[0]+lado/2,posini[1]-lado/2,posini[2]-lado/2], //G
+                        [posini[0]+lado/2,posini[1]-lado/2,posini[2]+lado/2], //B cara abajo
+                        [posini[0]+lado/2,posini[1]+lado/2,posini[2]+lado/2], //A
+                        [posini[0]+lado/2,posini[1]+lado/2,posini[2]-lado/2], //H Cara derecha
+                        [posini[0]-lado/2,posini[1]+lado/2,posini[2]-lado/2], //E
+                        [posini[0]-lado/2,posini[1]+lado/2,posini[2]+lado/2], //D Cara arriba
+                        ];
+        var largoVertice = vertices.length;
+        for (i = 0; i < largoVertice; i++) {
+            x = vertices[i][0];
+            y = vertices[i][1];
+            z = vertices[i][2];
+            vector = new THREE.Vector3(x, y, z);
+            GeoCuadrado.vertices.push(vector); 
+        }
+        this.getlado=function(){ // return el lado del cubo creado
+            return lado
+        }
+        Cubo=new THREE.Line(GeoCuadrado,material);
+        return Cubo;
+     }
+    function Translacionx(lado,cubo){ //Funcion de transalado solo en x por 2*lado
+        var matrizT = new THREE.Matrix4(); 
+        matrizT.set(1, 0, 0, 2*lado,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1);
+
+                cubo.applyMatrix(matrizT);
+                scene.add(cubo); 
+    }
+    function Escalado(factor,cubo){
+        var matrizS = new THREE.Matrix4(); //Se escala con el factor dado 
+        matrizS.set(factor[0], 0, 0, 0,
+                    0, factor[1], 0, 0,
+                    0, 0, factor[2], 0,
+                    0, 0, 0, 1);
+
+                    cubo.applyMatrix(matrizS);
+                    scene.add(cubo); 
+    }
+    function Rotacionx(angle,cubo){ //Se rota el cubo solo en eje x
+
+        var matrizRx = new THREE.Matrix4();
+        var alpha = angle;
+        var cs = Math.cos(alpha);
+        var ss = Math.sin(alpha);
+
+        matrizRx.set(1,  0, 0, 0, //rotacion en x 
+                    0,  cs, -ss, 0, 
+                    0, ss, cs, 0,
+                    0, 0, 0, 1);
+
+        cubo.applyMatrix( matrizRx); 
+        scene.add(cubo);
+}
+        
+
+
+    function init() {  
+
+       
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);    
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        var size = 700;
+        var arrowSize = 40;
+        var divisions = 20; 
+        var origin = new THREE.Vector3( 0, 0, 0 );
+        var x = new THREE.Vector3( 1, 0, 0 );
+        var y = new THREE.Vector3( 0, 1, 0 );
+        var z = new THREE.Vector3( 0, 0, 1 );
+        var color2 = new THREE.Color( 0x333333 );  
+        var colorR = new THREE.Color( 0xAA0000 ); 
+        var colorG = new THREE.Color( 0x00AA00 );
+        var colorB = new THREE.Color( 0x0000AA );
+
+        //Crear la Rejilla 
+        var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2); 
+
+        //Flechas
+        var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );                                    
+        var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+        var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );  
+			
+        //Cámara
+        camera.position.x = 70;
+        camera.position.y =100;
+        camera.position.z = 230;
+        camera.lookAt(scene.position); // enfoque a la posicion de la escena 
+        //Materiales
+        Material1=new THREE.ParticleBasicMaterial({color:0xFF0000});//color rojo 
+        Material2=new THREE.ParticleBasicMaterial({color:0x00ff00});//color verde
+        Material3=new THREE.ParticleBasicMaterial({color:0x00ffff});//color magenta
+        Material4= new THREE.ParticleBasicMaterial({color:0xffff00});//color amarillo
+        //Creacion de Cubitos 
+       var Cubonormal= cubo([0,0,0],40,Material1);
+       var CuboTransladado= cubo([0,0,0],40,Material2);
+       var CuboEscalado= cubo([0,0,0],40,Material3);
+       var CuboRotadox= cubo([0,0,0],40,Material4);
+       //Transformaciones
+       Translacionx(getlado(),CuboTransladado);//cubo transladado 2*lado en eje x
+       Escalado([1.5,1.5,1.5],CuboEscalado); //Cubo Escalado a un 150% proporcional
+       Rotacionx(45,CuboRotadox);//Cubo Rotado 45 grados en Eje x
+       
+        document.body.appendChild(renderer.domElement); 
+
+        // Agregar elementos al escenario***
+        scene.add(Cubonormal); //Agregamos cubo inical
+        scene.add(gridHelperXZ);
+	    scene.add(arrowX);	
+		scene.add(arrowY);	
+		scene.add(arrowZ);
+        
+    
+
+        renderer.render(scene, camera);
+    }
+
+    init();  
+
+    </script>
+  </body>
+</html>
